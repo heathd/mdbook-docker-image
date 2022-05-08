@@ -26,7 +26,7 @@ RUN cargo install mdbook-graphviz --vers ${MDBOOK_GRAPHVIZ_VERSION} --verbose
 RUN cargo install mdbook-katex --vers ${MDBOOK_KATEX_VERSION} --verbose
 
 # Create the final image
-FROM ubuntu:22.04
+FROM eclipse-temurin:11-jre-focal
 
 LABEL maintainer="david@davidheath.org"
 ENV RUST_LOG info
@@ -34,10 +34,19 @@ ENV RUST_LOG info
 # used when serving
 EXPOSE 3000
 
-COPY --from=build /usr/local/bin/mdbook* /bin/
+# Install plantuml and dependencies
+ENV PLANTUML_VERSION=1.2022.5
+ENV LANG en_US.UTF-8
+RUN \
+  apt-get update &&
+  apt-get install --no-install-recommends -y graphviz wget ca-certificates && \
+  apt-get install --no-install-recommends -y graphviz wget ca-certificates ttf-dejavu fontconfig && \
+  wget "http://downloads.sourceforge.net/project/plantuml/${PLANTUML_VERSION}/plantuml.${PLANTUML_VERSION}.jar" -O plantuml.jar && \
+  rm -rf /var/cache/apt/lists
+RUN ["java", "-Djava.awt.headless=true", "-jar", "plantuml.jar", "-version"]
+RUN ["dot", "-version"]
 
-# Make sure we have certs
-RUN apt-get update && apt-get install --no-install-recommends -y ca-certificates graphviz plantuml && rm -rf /var/cache/apt/lists
+COPY --from=build /usr/local/bin/mdbook* /bin/
 
 COPY bin/plantuml /usr/bin/plantuml
 
