@@ -26,9 +26,9 @@ RUN cargo install mdbook-graphviz --vers ${MDBOOK_GRAPHVIZ_VERSION} --verbose
 RUN cargo install mdbook-katex --vers ${MDBOOK_KATEX_VERSION} --verbose
 
 # Create the final image
-FROM ubuntu:20.04
+FROM ubuntu:22.04
 
-LABEL maintainer="michaelfbryan@gmail.com"
+LABEL maintainer="david@davidheath.org"
 ENV RUST_LOG info
 
 # used when serving
